@@ -25,7 +25,10 @@ SECRET_KEY = '^ot(foj9f+@e-+h!m$1h=(mq%de^txww2w2+-e9clsp!*l6*lf'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    '2cee5f22.ngrok.io',
+    'localhost'
+]
 
 
 # Application definition
@@ -51,6 +54,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -135,4 +139,30 @@ ACCOUNT_EMAIL_VERIFICATION = 'none'
 
 REST_AUTH_REGISTER_SERIALIZERS = {
         'REGISTER_SERIALIZER': 'myuser.serializers.RegisterSerializer',
+}
+
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': os.environ.get('DATABASE_NAME', 'so3'),
+        'USER': os.environ.get('DATABASE_USER', 'root'),
+        'PASSWORD': os.environ.get('DATABASE_PASSWORD', 'reverse'),
+        # 'HOST': os.environ.get('DATABASE_HOST', ''),
+        # 'PORT': os.environ.get('DATABASE_PORT', ''),
+    }
+}
+
+CORS_ORIGIN_ALLOW_ALL = True
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+        'rest_framework_jwt.authentication.JSONWebTokenAuthentication',
+        'rest_framework.authentication.TokenAuthentication',
+        'rest_framework.authentication.BasicAuthentication',
+        'django.contrib.auth.backends.ModelBackend',
+    ),
+    'DEFAULT_PERMISSION_CLASS' : (
+        #'rest_framework.permissions.IsAuthenticated',
+    ),
 }

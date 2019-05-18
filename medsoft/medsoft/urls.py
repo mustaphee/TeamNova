@@ -49,6 +49,7 @@ api_urlpatterns = [
     url('rest-auth/registration/', include('rest_auth.registration.urls')), 
     url('patients/', include('patient.urls')),
     url('doctors/', include('doctor.urls')),
+    url('user/', include('myuser.urls')),
 ]
 
 

@@ -3,20 +3,21 @@ from rest_auth.registration.serializers import RegisterSerializer as RestAuthReg
 from allauth.account import app_settings as allauth_settings
 from patient.serializers import PatientSerializer
 from doctor.serializers import DoctorSerializer
+from django.contrib.auth.models import User
 
 PATIENT_USER = 'P'
 DOCTOR_USER = 'D'
 
 class RegisterSerializer(RestAuthRegisterSerializer):
-    email = serializers.EmailField(required=allauth_settings.EMAIL_REQUIRED)
+    email = serializers.EmailField(required=False)
     first_name = serializers.CharField(required=True, write_only=True)
     last_name = serializers.CharField(required=True, write_only=True)
     password1 = serializers.CharField(required=True, write_only=True)
     password2 = serializers.CharField(required=True, write_only=True)
     username = serializers.CharField(required=True)
-    user_type = serializers.CharField(max_length=2, required=True)
-    doctor = DoctorSerializer(required=False)
-    patient = PatientSerializer(required=False)
+    user_type = serializers.CharField(max_length=2, required=True, help_text="Type of user \n P - patient, D - doctor")
+    # doctor = DoctorSerializer(required=False)
+    # patient = PatientSerializer(required=False)
 
     address = serializers.CharField(required=True, max_length=255)
     occupation = serializers.CharField(required=True, max_length=255)
@@ -59,8 +60,8 @@ class RegisterSerializer(RestAuthRegisterSerializer):
             'occupation': self.validated_data.get('occupation', ''),
             'dob': self.validated_data.get('dob', ''),
 
-            'hospital': self.validated_data.get('hospital', ''),
-            'speciality': self.validated_data.get('speciality', ''),
+            'hospital': self.initial_data.get('hospital', ''),
+            'speciality': self.initial_data.get('speciality', ''),
         }
 
     def custom_signup(self, request, user):
@@ -76,12 +77,26 @@ class RegisterSerializer(RestAuthRegisterSerializer):
             serializer = PatientSerializer(data=data)
         serializer.is_valid(raise_exception=True)
         serializer.save()
-        # try: 
-        #     profile = user.userprofile 
-        # except user._meta.model.userprofile.RelatedObjectDoesNotExist as e: 
-        #     UserProfile.objects.create(user=user)
-        # profile_data = {}
-        # profile_serializer = UserProfileSerializer(user.userprofile, data=self.get_cleaned_data(), partial=True)
-        # profile_serializer.is_valid(raise_exception=True)
-        # profile_serializer.save()
-        # StripeCustomAccount.create_wallet(user, request)
+
+class UserSerializer(serializers.ModelSerializer):
+    patient = PatientSerializer()
+    doctor = DoctorSerializer()
+    user_type = serializers.SerializerMethodField()
+    phone_no = serializers.SerializerMethodField()
+    name = serializers.SerializerMethodField()
+    class Meta:
+        model = User
+        fields = ('phone_no', 'username', 'name', 'email', 'doctor', 'patient', 'user_type')
+
+    def get_user_type(self, obj):
+        try:
+            patient = obj.patient
+            return PATIENT_USER
+        except:
+            return DOCTOR_USER
+
+    def get_phone_no(self, obj):
+        return obj.username
+
+    def get_name(self, obj):
+        return obj.first_name + obj.last_name
