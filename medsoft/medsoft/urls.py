@@ -47,6 +47,8 @@ doc_patterns = [
 api_urlpatterns = [
     url('rest-auth/', include('rest_auth.urls')),
     url('rest-auth/registration/', include('rest_auth.registration.urls')), 
+    url('patients/', include('patient.urls')),
+    url('doctors/', include('doctor.urls')),
 ]
 
 

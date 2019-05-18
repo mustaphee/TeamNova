@@ -45,6 +45,9 @@ INSTALLED_APPS = [
     'allauth.account',
     'corsheaders',
     'drf_yasg',
+    'doctor',
+    'patient',
+    'myuser',
 ]
 
 MIDDLEWARE = [
@@ -127,3 +130,9 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 SITE_ID = 1
+
+ACCOUNT_EMAIL_VERIFICATION = 'none'
+
+REST_AUTH_REGISTER_SERIALIZERS = {
+        'REGISTER_SERIALIZER': 'myuser.serializers.RegisterSerializer',
+}
