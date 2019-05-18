@@ -15,7 +15,43 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
+from django.conf.urls import url, include
+from drf_yasg.views import get_schema_view
+from drf_yasg import openapi
+from rest_framework.documentation import include_docs_urls
+from rest_framework.permissions import AllowAny
+from django.views.generic import TemplateView
+
+
+schema_view = get_schema_view(
+   openapi.Info(
+      title="Snippets API",
+      default_version='v1',
+      description="Test description",
+      terms_of_service="https://www.google.com/policies/terms/",
+      contact=openapi.Contact(email="contact@snippets.local"),
+      license=openapi.License(name="BSD License"),
+   ),
+   validators=['flex', 'ssv'],
+   public=True,
+   permission_classes=(AllowAny,),
+)
+
+
+doc_patterns = [
+    url(r'^swagger(?P<format>\.json|\.yaml)$', schema_view.without_ui(cache_timeout=1), name='schema-json'),
+    url(r'^swagger/$', schema_view.with_ui('swagger', cache_timeout=1), name='schema-swagger-ui'),
+    url(r'^redoc/$', schema_view.with_ui('redoc', cache_timeout=1), name='schema-redoc'),
+]
+
+api_urlpatterns = [
+    url('rest-auth/', include('rest_auth.urls')),
+    url('rest-auth/registration/', include('rest_auth.registration.urls')), 
+]
+
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('doc/', include(doc_patterns)),
+    path('api/', include(api_urlpatterns)),
 ]
